@@ -619,25 +619,42 @@ class ProductClassCreateUpdateView(generic.UpdateView):
     form_class = ProductClassForm
     product_attributes_formset = ProductAttributesFormSet
 
-    def form_valid(self, form):
-        if self.creating:
+    def process_all_forms(self, form):
+        """
+        This validates both the ProductClass form and the
+        ProductClassAttributes formset at once
+        making it possible to display all their errors at once.
+        """
+        if self.creating and form.is_valid():
+            # the object will be needed by the product_attributes_formset
             self.object = form.save(commit=False)
 
         attributes_formset = self.product_attributes_formset(self.request.POST,
                                                              self.request.FILES,
                                                              instance=self.object)
-        if attributes_formset.is_valid():
-            form.save()
-            attributes_formset.save()
 
-            return HttpResponseRedirect(self.get_success_url())
+        is_valid = form.is_valid() and attributes_formset.is_valid()
 
+        if is_valid:
+            return self.forms_valid(form, attributes_formset)
+        else:
+            return self.forms_invalid(form, attributes_formset)
+
+    def forms_valid(self, form, attributes_formset):
+        form.save()
+        attributes_formset.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def forms_invalid(self, form, attributes_formset):
         messages.error(self.request,
                        _("Your submitted data was not valid - please "
                          "correct the errors below"
                          ))
         ctx = self.get_context_data(form=form, attributes_formset=attributes_formset)
         return self.render_to_response(ctx)
+
+    form_valid = form_invalid = process_all_forms
 
     def get_title(self):
         if self.creating:
