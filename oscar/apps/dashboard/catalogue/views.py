@@ -22,7 +22,8 @@ from oscar.views.generic import ObjectLookupView
  StockAlertSearchForm,
  ProductCategoryFormSet,
  ProductImageFormSet,
- ProductRecommendationFormSet) \
+ ProductRecommendationFormSet,
+ ProductAttributesFormSet) \
     = get_classes('dashboard.catalogue.forms',
                   ('ProductForm',
                    'ProductClassSelectForm',
@@ -33,7 +34,8 @@ from oscar.views.generic import ObjectLookupView
                    'StockAlertSearchForm',
                    'ProductCategoryFormSet',
                    'ProductImageFormSet',
-                   'ProductRecommendationFormSet'))
+                   'ProductRecommendationFormSet',
+                   'ProductAttributesFormSet'))
 ProductTable, CategoryTable \
     = get_classes('dashboard.catalogue.tables',
                   ('ProductTable', 'CategoryTable'))
@@ -610,7 +612,48 @@ class ProductLookupView(ObjectLookupView):
                          | Q(parent__title__icontains=term))
 
 
-class ProductClassCreateView(generic.CreateView):
+class ProductClassAttributesMixin(object):
+
+    product_attributes_formset = ProductAttributesFormSet
+
+    def form_valid(self, form):
+        if self.creating:
+            self.object = form.save(commit=False)
+
+        attributes_formset = self.product_attributes_formset(self.request.POST,
+                                                             self.request.FILES,
+                                                             instance=self.object)
+        if attributes_formset.is_valid():
+            form.save()
+            attributes_formset.save()
+
+            return HttpResponseRedirect(self.get_success_url())
+
+        messages.error(self.request,
+                       _("Your submitted data was not valid - please "
+                         "correct the errors below"
+                         ))
+        ctx = self.get_context_data(form=form, attributes_formset=attributes_formset)
+        return self.render_to_response(ctx)
+
+    def get_object(self, queryset=None):
+        self.creating = 'pk' not in self.kwargs
+        if self.creating:
+            return None
+
+        product_class = get_object_or_404(ProductClass, pk=self.kwargs['pk'])
+
+        return product_class
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ProductClassAttributesMixin, self).get_context_data(*args, **kwargs)
+        if "attributes_formset" not in ctx:
+            ctx["attributes_formset"] = self.product_attributes_formset(instance=self.object)
+
+        return ctx
+
+
+class ProductClassCreateView(ProductClassAttributesMixin, generic.UpdateView):
     template_name = 'dashboard/catalogue/product_class_form.html'
     model = ProductClass
     form_class = ProductClassForm
@@ -637,7 +680,7 @@ class ProductClassListView(generic.ListView):
         return ctx
 
 
-class ProductClassUpdateView(generic.UpdateView):
+class ProductClassUpdateView(ProductClassAttributesMixin, generic.UpdateView):
     template_name = 'dashboard/catalogue/product_class_form.html'
     model = ProductClass
     form_class = ProductClassForm

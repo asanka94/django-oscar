@@ -10,6 +10,7 @@ from oscar.forms.widgets import ImageInput
 
 Product = get_model('catalogue', 'Product')
 ProductClass = get_model('catalogue', 'ProductClass')
+ProductAttribute = get_model('catalogue', 'ProductAttribute')
 Category = get_model('catalogue', 'Category')
 StockRecord = get_model('partner', 'StockRecord')
 ProductCategory = get_model('catalogue', 'ProductCategory')
@@ -465,3 +466,15 @@ class ProductClassForm(forms.ModelForm):
     class Meta:
         model = ProductClass
         fields = ['name', 'requires_shipping', 'track_stock', 'options']
+
+
+class ProductAttributesForm(forms.ModelForm):
+
+    class Meta:
+        model = ProductAttribute
+        fields = ["name", "code", "type", "option_group", "required"]
+
+ProductAttributesFormSet = inlineformset_factory(ProductClass,
+                                                 ProductAttribute,
+                                                 form=ProductAttributesForm,
+                                                 extra=3)
