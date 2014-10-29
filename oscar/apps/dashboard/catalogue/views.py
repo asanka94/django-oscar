@@ -629,9 +629,8 @@ class ProductClassCreateUpdateView(generic.UpdateView):
             # the object will be needed by the product_attributes_formset
             self.object = form.save(commit=False)
 
-        attributes_formset = self.product_attributes_formset(self.request.POST,
-                                                             self.request.FILES,
-                                                             instance=self.object)
+        attributes_formset = self.product_attributes_formset(
+            self.request.POST, self.request.FILES, instance=self.object)
 
         is_valid = form.is_valid() and attributes_formset.is_valid()
 
@@ -651,7 +650,8 @@ class ProductClassCreateUpdateView(generic.UpdateView):
                        _("Your submitted data was not valid - please "
                          "correct the errors below"
                          ))
-        ctx = self.get_context_data(form=form, attributes_formset=attributes_formset)
+        ctx = self.get_context_data(form=form,
+                                    attributes_formset=attributes_formset)
         return self.render_to_response(ctx)
 
     form_valid = form_invalid = process_all_forms
@@ -682,9 +682,12 @@ class ProductClassCreateUpdateView(generic.UpdateView):
         return product_class
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super(ProductClassCreateUpdateView, self).get_context_data(*args, **kwargs)
+        ctx = super(ProductClassCreateUpdateView, self).get_context_data(
+            *args, **kwargs)
+
         if "attributes_formset" not in ctx:
-            ctx["attributes_formset"] = self.product_attributes_formset(instance=self.object)
+            ctx["attributes_formset"] = self.product_attributes_formset(
+                instance=self.object)
 
         ctx["title"] = self.get_title()
 

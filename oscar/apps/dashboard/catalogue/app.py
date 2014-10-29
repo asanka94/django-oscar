@@ -31,7 +31,7 @@ class CatalogueApplication(Application):
                                     'ProductDeleteView')
 
     product_class_createupdate_view = get_class('dashboard.catalogue.views',
-                                          'ProductClassCreateUpdateView')
+                                                'ProductClassCreateUpdateView')
     product_class_list_view = get_class('dashboard.catalogue.views',
                                         'ProductClassListView')
     product_class_delete_view = get_class('dashboard.catalogue.views',
