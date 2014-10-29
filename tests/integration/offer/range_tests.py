@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from oscar.apps.offer import models
+from oscar.apps.catalogue import models as catalogue_models
 from oscar.test.factories import create_product
 
 
@@ -53,6 +54,33 @@ class TestPartialRange(TestCase):
         self.range.excluded_products.add(self.parent)
         self.assertFalse(self.range.contains_product(self.parent))
         self.assertFalse(self.range.contains_product(self.child))
+
+    def test_all_products(self):
+        product_in_included_class = create_product(product_class="123")
+        included_product_class = product_in_included_class.product_class
+        excluded_product_in_included_class = create_product(
+            product_class=included_product_class.name)
+
+        included_category = catalogue_models.Category.add_root(name="root")
+        product_in_included_category = create_product()
+        excluded_product_in_included_category = create_product()
+        catalogue_models.ProductCategory.objects.create(product=product_in_included_category,
+                                                        category=included_category)
+        catalogue_models.ProductCategory.objects.create(product=excluded_product_in_included_category,
+                                                        category=included_category)
+
+        self.range.classes.add(included_product_class)
+        self.range.excluded_products.add(excluded_product_in_included_class)
+        self.range.included_categories.add(included_category)
+        self.range.excluded_products.add(excluded_product_in_included_category)
+
+        all_products = self.range.all_products()
+        self.assertTrue(product_in_included_class in all_products)
+        self.assertTrue(excluded_product_in_included_class not in
+                        all_products)
+        self.assertTrue(product_in_included_category in all_products)
+        self.assertTrue(excluded_product_in_included_category not in
+                        all_products)
 
 
 class TestRangeModel(TestCase):
