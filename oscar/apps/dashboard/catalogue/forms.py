@@ -470,6 +470,22 @@ class ProductClassForm(forms.ModelForm):
 
 class ProductAttributesForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(ProductAttributesForm, self).__init__(*args, **kwargs)
+
+        # because we'll allow submission of the form with blank
+        # codes so that we can generate them.
+        self.fields["code"].required = False
+
+    def clean_code(self):
+        code = self.cleaned_data["code"]
+        title = self.cleaned_data["name"]
+
+        if not code:
+            code = slugify(title)
+
+        return code
+
     class Meta:
         model = ProductAttribute
         fields = ["name", "code", "type", "option_group", "required"]
