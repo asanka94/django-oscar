@@ -612,8 +612,11 @@ class ProductLookupView(ObjectLookupView):
                          | Q(parent__title__icontains=term))
 
 
-class ProductClassAttributesMixin(object):
+class ProductClassCreateUpdateView(generic.UpdateView):
 
+    template_name = 'dashboard/catalogue/product_class_form.html'
+    model = ProductClass
+    form_class = ProductClassForm
     product_attributes_formset = ProductAttributesFormSet
 
     def form_valid(self, form):
@@ -636,6 +639,22 @@ class ProductClassAttributesMixin(object):
         ctx = self.get_context_data(form=form, attributes_formset=attributes_formset)
         return self.render_to_response(ctx)
 
+    def get_title(self):
+        if self.creating:
+            title = _("Add a new product type")
+        else:
+            title = _("Update product type '%s'") % self.object.name
+
+        return title
+
+    def get_success_url(self):
+        if self.creating:
+            messages.info(self.request, _("Product type created successfully"))
+            return reverse("dashboard:catalogue-class-list")
+        else:
+            messages.info(self.request, _("Product type update successfully"))
+            return reverse("dashboard:catalogue-class-list")
+
     def get_object(self, queryset=None):
         self.creating = 'pk' not in self.kwargs
         if self.creating:
@@ -646,26 +665,13 @@ class ProductClassAttributesMixin(object):
         return product_class
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super(ProductClassAttributesMixin, self).get_context_data(*args, **kwargs)
+        ctx = super(ProductClassCreateUpdateView, self).get_context_data(*args, **kwargs)
         if "attributes_formset" not in ctx:
             ctx["attributes_formset"] = self.product_attributes_formset(instance=self.object)
 
+        ctx["title"] = self.get_title()
+
         return ctx
-
-
-class ProductClassCreateView(ProductClassAttributesMixin, generic.UpdateView):
-    template_name = 'dashboard/catalogue/product_class_form.html'
-    model = ProductClass
-    form_class = ProductClassForm
-
-    def get_context_data(self, **kwargs):
-        ctx = super(ProductClassCreateView, self).get_context_data(**kwargs)
-        ctx['title'] = _("Add a new product type")
-        return ctx
-
-    def get_success_url(self):
-        messages.info(self.request, _("Product type created successfully"))
-        return reverse("dashboard:catalogue-class-list")
 
 
 class ProductClassListView(generic.ListView):
@@ -678,21 +684,6 @@ class ProductClassListView(generic.ListView):
                                                                  **kwargs)
         ctx['title'] = _("Product Types")
         return ctx
-
-
-class ProductClassUpdateView(ProductClassAttributesMixin, generic.UpdateView):
-    template_name = 'dashboard/catalogue/product_class_form.html'
-    model = ProductClass
-    form_class = ProductClassForm
-
-    def get_context_data(self, **kwargs):
-        ctx = super(ProductClassUpdateView, self).get_context_data(**kwargs)
-        ctx['title'] = _("Update product type '%s'") % self.object.name
-        return ctx
-
-    def get_success_url(self):
-        messages.info(self.request, _("Product type update successfully"))
-        return reverse("dashboard:catalogue-class-list")
 
 
 class ProductClassDeleteView(generic.DeleteView):
