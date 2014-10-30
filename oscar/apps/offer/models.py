@@ -957,6 +957,12 @@ class Range(models.Model):
         return self.included_products.all().count()
 
     def all_products(self):
+        """
+        Return a queryset containing all the products in the
+        included_products plus the products contained in the
+        included classes and included categories,
+        minus the products in excluded_products.
+        """
         Product = get_model("catalogue", "Product")
         if self.includes_all_products:
             return Product.objects.all()
