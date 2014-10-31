@@ -478,10 +478,10 @@ class ProductAttributesForm(forms.ModelForm):
         self.fields["code"].required = False
 
     def clean_code(self):
-        code = self.cleaned_data["code"]
-        title = self.cleaned_data["name"]
+        code = self.cleaned_data.get("code")
+        title = self.cleaned_data.get("name")
 
-        if not code:
+        if not code and title:
             code = slugify(title)
 
         return code
