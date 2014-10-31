@@ -23,7 +23,7 @@
 {% block headertext %}{{ title }}{% endblock %}
 
 {% block dashboard_content %}
-    <form class="form-stacked wysiwyg fixed-actions" method="post">
+    <form class="form-stacked wysiwyg fixed-actions" method="post" data-behaviour="affix-nav-errors">
         {% csrf_token %}
 
         {% comment %}
@@ -66,7 +66,7 @@
                                 {% if form.non_field_errors %}
                                     {% for error in form.non_field_errors %}
                                         <div class="alert alert-error control-group error">
-                                            <span class="help-inline"><i class="icon-exclamation-sign"></i> {{ error }}</span>
+                                            <span class="error-block"><i class="icon-exclamation-sign"></i> {{ error }}</span>
                                         </div>
                                     {% endfor %}
                                 {% endif %}
