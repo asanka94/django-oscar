@@ -6,6 +6,8 @@
     {{ title }} | {% trans "Create product type" %} | {{ block.super }}
 {% endblock %}
 
+{% block body_class %}{{ block.super }} create-page{% endblock %}
+
 {% block breadcrumbs %}
     <ul class="breadcrumb">
         <li>
