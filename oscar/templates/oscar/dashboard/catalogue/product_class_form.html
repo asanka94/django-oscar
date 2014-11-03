@@ -96,7 +96,7 @@
                                             <th>{% trans "Code" %}</th>
                                             <th>{% trans "Type" %}</th>
                                             <th>{% trans "Required" %}</th>
-                                            <th>{% trans "Delete" %}</th>
+                                            <th>{% trans "Delete?" %}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -144,34 +144,7 @@
 
 {% endblock dashboard_content %}
 
-{% block extrascripts %}
-<script type="application/javascript">
-
-    var toggle_option_group = function(type_select){
-        var option_group_select = $('#' + type_select.attr('id').replace('type', 'option_group'));
-
-        if(type_select.val() === 'option'){
-            option_group_select.show();
-
-            // show the help-text.
-            option_group_select.siblings().show();
-        }else{
-            option_group_select.hide();
-            option_group_select.siblings().hide();
-        }
-    };
-
-    $(function(){
-        var type_selects = $("select[name$=type]");
-
-        type_selects.each(function(index){
-            toggle_option_group($(this));
-        });
-
-        type_selects.change(function(e){
-            toggle_option_group($(this));
-        });
-    });
-
-</script>
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.dashboard.product_classes.init();
 {% endblock %}
