@@ -477,6 +477,8 @@ class ProductAttributesForm(forms.ModelForm):
         # codes so that we can generate them.
         self.fields["code"].required = False
 
+        self.fields["option_group"].help_text = _("Select an option group")
+
     def clean_code(self):
         code = self.cleaned_data.get("code")
         title = self.cleaned_data.get("name")
