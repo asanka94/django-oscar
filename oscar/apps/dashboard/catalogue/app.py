@@ -50,6 +50,11 @@ class CatalogueApplication(Application):
     category_delete_view = get_class('dashboard.catalogue.views',
                                      'CategoryDeleteView')
 
+    attribute_option_group_create_view = get_class(
+        'dashboard.catalogue.views', 'AttributeOptionGroupCreateView')
+    attribute_option_group_update_view = get_class(
+        'dashboard.catalogue.views', 'AttributeOptionGroupUpdateView')
+
     stock_alert_view = get_class('dashboard.catalogue.views',
                                  'StockAlertListView')
 
@@ -104,6 +109,12 @@ class CatalogueApplication(Application):
             url(r'^product-type/(?P<pk>\d+)/delete/$',
                 self.product_class_delete_view.as_view(),
                 name='catalogue-class-delete'),
+            url(r'^attribute-option-group/create/$',
+                self.attribute_option_group_create_view.as_view(),
+                name='attribute-option-group-create'),
+            url(r'^attribute-option-group/(?P<pk>\d+)/$',
+                self.attribute_option_group_update_view.as_view(),
+                name='attribute-option-group-update')
         ]
         return self.post_process_urls(urls)
 
