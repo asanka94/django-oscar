@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
+from extra_views import CreateWithInlinesView, InlineFormSet, UpdateWithInlinesView
+
 from oscar.core.loading import get_classes, get_model
 
 from django_tables2 import SingleTableMixin
@@ -23,7 +25,9 @@ from oscar.views.generic import ObjectLookupView
  ProductCategoryFormSet,
  ProductImageFormSet,
  ProductRecommendationFormSet,
- ProductAttributesFormSet) \
+ ProductAttributesFormSet,
+ AttributeOptionGroupForm,
+ AttributeOptionFormSet) \
     = get_classes('dashboard.catalogue.forms',
                   ('ProductForm',
                    'ProductClassSelectForm',
@@ -35,7 +39,9 @@ from oscar.views.generic import ObjectLookupView
                    'ProductCategoryFormSet',
                    'ProductImageFormSet',
                    'ProductRecommendationFormSet',
-                   'ProductAttributesFormSet'))
+                   'ProductAttributesFormSet',
+                   'AttributeOptionGroupForm',
+                   'AttributeOptionFormSet'))
 ProductTable, CategoryTable \
     = get_classes('dashboard.catalogue.tables',
                   ('ProductTable', 'CategoryTable'))
@@ -44,6 +50,8 @@ Category = get_model('catalogue', 'Category')
 ProductImage = get_model('catalogue', 'ProductImage')
 ProductCategory = get_model('catalogue', 'ProductCategory')
 ProductClass = get_model('catalogue', 'ProductClass')
+AttributeOptionGroup = get_model('catalogue', 'AttributeOptionGroup')
+AttributeOption = get_model('catalogue', 'AttributeOption')
 StockRecord = get_model('partner', 'StockRecord')
 StockAlert = get_model('partner', 'StockAlert')
 Partner = get_model('partner', 'Partner')
@@ -728,3 +736,44 @@ class ProductClassDeleteView(generic.DeleteView):
     def get_success_url(self):
         messages.info(self.request, _("Product type deleted successfully"))
         return reverse("dashboard:catalogue-class-list")
+
+
+class AttributeOptionInline(InlineFormSet):
+
+    model = AttributeOption
+    extra = 5
+
+
+class AttributeOptionGroupFormViewMixin(object):
+    template_name = 'dashboard/catalogue/attribute_option_group_form.html'
+    model = AttributeOptionGroup
+    inlines = [AttributeOptionInline]
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(AttributeOptionGroupFormViewMixin,
+                    self).get_context_data(*args, **kwargs)
+        ctx['attribute_option_formsets'] = ctx['inlines'][0]
+        return ctx
+
+    def get_success_url(self):
+        return reverse("dashboard:attribute-option-group-update", kwargs={
+            "pk": self.object.pk
+        })
+
+
+class AttributeOptionGroupCreateView(AttributeOptionGroupFormViewMixin,
+                                     CreateWithInlinesView):
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(AttributeOptionGroupCreateView, self).get_context_data(*args, **kwargs)
+        ctx['title'] = _("Create attribute option group")
+        return ctx
+
+
+class AttributeOptionGroupUpdateView(AttributeOptionGroupFormViewMixin,
+                                     UpdateWithInlinesView):
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(AttributeOptionGroupUpdateView, self).get_context_data(*args, **kwargs)
+        ctx['title'] = _("Update attribute option group")
+        return ctx

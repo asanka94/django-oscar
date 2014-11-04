@@ -16,6 +16,8 @@ StockRecord = get_model('partner', 'StockRecord')
 ProductCategory = get_model('catalogue', 'ProductCategory')
 ProductImage = get_model('catalogue', 'ProductImage')
 ProductRecommendation = get_model('catalogue', 'ProductRecommendation')
+AttributeOptionGroup = get_model('catalogue', 'AttributeOptionGroup')
+AttributeOption = get_model('catalogue', 'AttributeOption')
 ProductSelect = get_class('dashboard.catalogue.widgets', 'ProductSelect')
 ProductSelectMultiple = get_class('dashboard.catalogue.widgets',
                                   'ProductSelectMultiple')
@@ -496,3 +498,13 @@ ProductAttributesFormSet = inlineformset_factory(ProductClass,
                                                  ProductAttribute,
                                                  form=ProductAttributesForm,
                                                  extra=3)
+class AttributeOptionGroupForm(forms.ModelForm):
+
+    class Meta:
+        model = AttributeOptionGroup
+        fields = ['name']
+
+
+AttributeOptionFormSet = inlineformset_factory(
+    AttributeOptionGroup, AttributeOption, extra=5
+)
