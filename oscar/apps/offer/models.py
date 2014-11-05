@@ -969,7 +969,9 @@ class Range(models.Model):
 
         Product = get_model("catalogue", "Product")
         if self.includes_all_products:
-            return Product.objects.all()
+            # do not return child products
+            return Product.objects.filter(structure__in=[Product.PARENT,
+                                                         Product.STANDALONE])
 
         product_set = Product.objects.filter(
             Q(id__in=self._included_product_ids()) |
