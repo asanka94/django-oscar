@@ -963,6 +963,10 @@ class Range(models.Model):
         included classes and included categories,
         minus the products in excluded_products.
         """
+
+        if self.proxy_class:
+            return load_proxy(self.proxy_class)().all_products()
+
         Product = get_model("catalogue", "Product")
         if self.includes_all_products:
             return Product.objects.all()
