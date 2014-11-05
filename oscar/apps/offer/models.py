@@ -954,7 +954,7 @@ class Range(models.Model):
             return load_proxy(self.proxy_class)().num_products()
         if self.includes_all_products:
             return None
-        return self.included_products.all().count()
+        return self.all_products().count()
 
     def all_products(self):
         """

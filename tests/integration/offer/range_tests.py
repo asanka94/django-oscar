@@ -68,6 +68,7 @@ class TestPartialRange(TestCase):
 
         all_products = self.range.all_products()
         self.assertEqual(all_products.count(), count)
+        self.assertEqual(self.range.num_products(), count)
 
         for product in included_products:
             self.assertTrue(product in all_products)
@@ -89,6 +90,8 @@ class TestPartialRange(TestCase):
         self.assertTrue(excluded_product_in_included_class not in
                         all_products)
 
+        self.assertEqual(self.range.num_products(), 1)
+
     def test_categories_in_all_products(self):
         included_category = catalogue_models.Category.add_root(name="root")
         product_in_included_category = create_product()
@@ -106,6 +109,8 @@ class TestPartialRange(TestCase):
         self.assertTrue(product_in_included_category in all_products)
         self.assertTrue(excluded_product_in_included_category not in
                         all_products)
+
+        self.assertEqual(self.range.num_products(), 1)
 
     def test_descendant_categories_in_all_products(self):
         parent_category = catalogue_models.Category.add_root(name="parent")
@@ -125,6 +130,8 @@ class TestPartialRange(TestCase):
         all_products = self.range.all_products()
         self.assertTrue(c_product in all_products)
         self.assertTrue(gc_product in all_products)
+
+        self.assertEqual(self.range.num_products(), 2)
 
 
 class TestRangeModel(TestCase):
