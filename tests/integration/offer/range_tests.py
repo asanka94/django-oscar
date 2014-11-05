@@ -67,7 +67,7 @@ class TestPartialRange(TestCase):
         self.range.excluded_products.add(*excluded_products)
 
         all_products = self.range.all_products()
-        self.assertTrue(all_products.count(), count)
+        self.assertEqual(all_products.count(), count)
 
         for product in included_products:
             self.assertTrue(product in all_products)
