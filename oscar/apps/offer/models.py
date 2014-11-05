@@ -940,8 +940,8 @@ class Range(models.Model):
             category_ids_list = list(
                 self.included_categories.values_list('pk', flat=True))
             for category in self.included_categories.all():
-                children_ids = category.get_children().values_list('pk',
-                                                                   flat=True)
+                children_ids = category.get_descendants().values_list(
+                    'pk', flat=True)
                 category_ids_list.extend(list(children_ids))
 
             self.__category_ids = category_ids_list

@@ -58,23 +58,21 @@ class TestPartialRange(TestCase):
     def test_included_excluded_products_in_all_products(self):
         count = 5
         included_products = [create_product() for _ in range(count)]
-        exluded_products = [create_product() for _ in range(count)]
+        excluded_products = [create_product() for _ in range(count)]
 
         for product in included_products:
             models.RangeProduct.objects.create(product=product,
                                                range=self.range)
 
-        self.range.excluded_products.add(*exluded_products)
+        self.range.excluded_products.add(*excluded_products)
 
         all_products = self.range.all_products()
         self.assertTrue(all_products.count(), count)
-        self.assertTrue(self.range.num_products(),
-                        all_products.count())
 
         for product in included_products:
             self.assertTrue(product in all_products)
 
-        for product in exluded_products:
+        for product in excluded_products:
             self.assertTrue(product not in all_products)
 
     def test_product_classes_in_all_products(self):
@@ -109,18 +107,24 @@ class TestPartialRange(TestCase):
         self.assertTrue(excluded_product_in_included_category not in
                         all_products)
 
-    def test_child_categories_in_all_products(self):
+    def test_descendant_categories_in_all_products(self):
         parent_category = catalogue_models.Category.add_root(name="parent")
         child_category = parent_category.add_child(name="child")
-        product = create_product()
+        grand_child_category = child_category.add_child(name="grand-child")
 
-        catalogue_models.ProductCategory.objects.create(product=product,
+        c_product = create_product()
+        gc_product = create_product()
+
+        catalogue_models.ProductCategory.objects.create(product=c_product,
                                                         category=child_category)
+        catalogue_models.ProductCategory.objects.create(product=gc_product,
+                                                        category=grand_child_category)
 
         self.range.included_categories.add(parent_category)
 
         all_products = self.range.all_products()
-        self.assertTrue(product in all_products)
+        self.assertTrue(c_product in all_products)
+        self.assertTrue(gc_product in all_products)
 
 
 class TestRangeModel(TestCase):
