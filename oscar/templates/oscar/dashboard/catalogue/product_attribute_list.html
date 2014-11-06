@@ -1,0 +1,60 @@
+{% extends 'dashboard/layout.html' %}
+{% load url from future %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">{% trans "Product Attribute" %}</li>
+    </ul>
+{% endblock %}
+
+{% block header %}
+    <div class="page-header">
+        <a href="{% url 'dashboard:catalogue-class-create' %}" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new product attribute" %}</a>
+        <h1>{% trans "Product attributes" %}</h1>
+    </div>
+{% endblock header %}
+
+{% block dashboard_content %}
+    {% if attributes %}
+        <table class="table table-striped table-bordered table-hover">
+            <caption><i class="icon-sitemap icon-large"></i>{% trans 'Product Attributes' %}</caption>
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Code" %}</th>
+                    <th>{% trans "Product Type" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attribute in attributes %}
+                    <tr>
+                        <td><a href="">{{ attribute.name }}</a></td>
+                        <td>{{ attribute.code }}</td>
+                        <td><a href="{% url 'dashboard:catalogue-class-update' pk=attribute.product_class.id %}">{{ attribute.product_class.name }}</a></td>
+                        <td>
+                            <div class="btn-toolbar">
+                                <div class="btn-group">
+                                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                                        {% trans "Actions" %}
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="nav dropdown-menu pull-right">
+                                        <li><a href="">{% trans "Edit product attribute" %}</a></li>                                    
+                                        <li><a href="">{% trans "Delete" %}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>{% trans "There are no product attributes." %}</p>
+    {% endif %}
+{% endblock dashboard_content %}

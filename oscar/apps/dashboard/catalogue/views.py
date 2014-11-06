@@ -38,6 +38,7 @@ ProductTable, CategoryTable \
     = get_classes('dashboard.catalogue.tables',
                   ('ProductTable', 'CategoryTable'))
 Product = get_model('catalogue', 'Product')
+ProductAttribute = get_model('catalogue', 'ProductAttribute')
 Category = get_model('catalogue', 'Category')
 ProductImage = get_model('catalogue', 'ProductImage')
 ProductCategory = get_model('catalogue', 'ProductCategory')
@@ -674,3 +675,9 @@ class ProductClassDeleteView(generic.DeleteView):
     def get_success_url(self):
         messages.info(self.request, _("Product type deleted successfully"))
         return reverse("dashboard:catalogue-class-list")
+
+
+class ProductAttributeListView(generic.ListView):
+    model = ProductAttribute
+    template_name = 'dashboard/catalogue/product_attribute_list.html'
+    context_object_name = 'attributes'

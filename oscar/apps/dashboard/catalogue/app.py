@@ -50,6 +50,9 @@ class CatalogueApplication(Application):
     category_delete_view = get_class('dashboard.catalogue.views',
                                      'CategoryDeleteView')
 
+    product_attribute_list_view = get_class('dashboard.catalogue.views',
+                                     'ProductAttributeListView')
+
     stock_alert_view = get_class('dashboard.catalogue.views',
                                  'StockAlertListView')
 
@@ -104,6 +107,9 @@ class CatalogueApplication(Application):
             url(r'^product-type/(?P<pk>\d+)/delete/$',
                 self.product_class_delete_view.as_view(),
                 name='catalogue-class-delete'),
+            url(r'^attributes/$',
+                self.product_attribute_list_view.as_view(),
+                name='product-attribute-list')
         ]
         return self.post_process_urls(urls)
 
