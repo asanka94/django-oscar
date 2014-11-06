@@ -51,7 +51,7 @@ class CatalogueApplication(Application):
                                      'CategoryDeleteView')
 
     product_attribute_list_view = get_class('dashboard.catalogue.views',
-                                     'ProductAttributeListView')
+                                            'ProductAttributeListView')
 
     stock_alert_view = get_class('dashboard.catalogue.views',
                                  'StockAlertListView')
