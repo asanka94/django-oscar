@@ -47,6 +47,7 @@ Category = get_model('catalogue', 'Category')
 ProductImage = get_model('catalogue', 'ProductImage')
 ProductCategory = get_model('catalogue', 'ProductCategory')
 ProductClass = get_model('catalogue', 'ProductClass')
+AttributeOptionGroup = get_model('catalogue', 'AttributeOptionGroup')
 StockRecord = get_model('partner', 'StockRecord')
 StockAlert = get_model('partner', 'StockAlert')
 Partner = get_model('partner', 'Partner')
@@ -775,3 +776,9 @@ class ProductAttributeUpdateView(generic.UpdateView):
     def get_success_url(self):
         messages.info(self.request, _("Product attribute updated successfully"))
         return reverse("dashboard:product-attribute-list")
+
+
+class AttributeOptionListView(generic.ListView):
+    model = AttributeOptionGroup
+    template_name = 'dashboard/catalogue/attribute_options_list.html'
+    context_object_name = 'attribute_option_groups'

@@ -14,6 +14,7 @@
 
 {% block header %}
     <div class="page-header">
+        <a href="{% url 'dashboard:attribute-option-group-list' %}" class="btn btn-success btn-large pull-right">{% trans "Manage attribute option groups" %}</a>
         <a href="{% url 'dashboard:product-attribute-create' %}" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new product attribute" %}</a>
         <h1>{% trans "Product attributes" %}</h1>
     </div>
