@@ -765,6 +765,10 @@ class ProductAttributeCreateView(generic.CreateView):
         ctx["title"] = _("Add a new product attribute")
         return ctx
 
+    def get_success_url(self):
+        messages.info(self.request, _("Product attribute created successfully"))
+        return reverse("dashboard:product-attribute-list")
+
 
 class ProductAttributeUpdateView(generic.UpdateView):
     model = ProductAttribute
