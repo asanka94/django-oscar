@@ -787,13 +787,13 @@ class ProductAttributeUpdateView(generic.UpdateView):
 
 class AttributeOptionGroupListView(generic.ListView):
     model = AttributeOptionGroup
-    template_name = 'dashboard/catalogue/attribute_options_list.html'
+    template_name = 'dashboard/catalogue/attribute_option_group_list.html'
     context_object_name = 'attribute_option_groups'
 
 
 class AttributeOptionGroupCreateView(NamedFormsetsMixin, CreateWithInlinesView):
     model = AttributeOptionGroup
-    template_name = 'dashboard/catalogue/attribute_options_form.html'
+    template_name = 'dashboard/catalogue/attribute_option_group_form.html'
     inlines = [AttributeOptionInlineFormSet]
     inlines_names = ['attribute_option_formset']
 
@@ -809,7 +809,7 @@ class AttributeOptionGroupCreateView(NamedFormsetsMixin, CreateWithInlinesView):
 
 class AttributeOptionGroupUpdateView(NamedFormsetsMixin, UpdateWithInlinesView):
     model = AttributeOptionGroup
-    template_name = 'dashboard/catalogue/attribute_options_form.html'
+    template_name = 'dashboard/catalogue/attribute_option_group_form.html'
     inlines = [AttributeOptionInlineFormSet]
     inlines_names = ['attribute_option_formset']
 
