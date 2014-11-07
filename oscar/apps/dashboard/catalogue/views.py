@@ -23,7 +23,8 @@ from oscar.views.generic import ObjectLookupView
  ProductCategoryFormSet,
  ProductImageFormSet,
  ProductRecommendationFormSet,
- ProductAttributesFormSet) \
+ ProductAttributesFormSet,
+ ProductAttributesForm) \
     = get_classes('dashboard.catalogue.forms',
                   ('ProductForm',
                    'ProductClassSelectForm',
@@ -35,7 +36,8 @@ from oscar.views.generic import ObjectLookupView
                    'ProductCategoryFormSet',
                    'ProductImageFormSet',
                    'ProductRecommendationFormSet',
-                   'ProductAttributesFormSet'))
+                   'ProductAttributesFormSet',
+                   'ProductAttributesForm'))
 ProductTable, CategoryTable \
     = get_classes('dashboard.catalogue.tables',
                   ('ProductTable', 'CategoryTable'))
@@ -741,3 +743,35 @@ class ProductAttributeListView(generic.ListView):
     model = ProductAttribute
     template_name = 'dashboard/catalogue/product_attribute_list.html'
     context_object_name = 'attributes'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(ProductAttributeListView, self).get_context_data(*args,
+                                                                 **kwargs)
+        ctx['title'] = _("Product Attributes")
+        return ctx
+
+
+class ProductAttributeCreateView(generic.CreateView):
+    model = ProductAttribute
+    template_name = 'dashboard/catalogue/product_attribute_form.html'
+    form_class = ProductAttributesForm
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductAttributeCreateView, self).get_context_data(**kwargs)
+        ctx["title"] = _("Add a new product attribute")
+        return ctx
+
+
+class ProductAttributeUpdateView(generic.UpdateView):
+    model = ProductAttribute
+    template_name = 'dashboard/catalogue/product_attribute_form.html'
+    form_class = ProductAttributesForm
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductAttributeUpdateView, self).get_context_data(**kwargs)
+        ctx["title"] = _("Update product attribute '%s'") % self.object.name
+        return ctx
+
+    def get_success_url(self):
+        messages.info(self.request, _("Product attribute updated successfully"))
+        return reverse("dashboard:product-attribute-list")

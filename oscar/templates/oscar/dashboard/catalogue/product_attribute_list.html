@@ -8,13 +8,13 @@
             <a href="{% url 'dashboard:index' %}">{% trans "Dashboard" %}</a>
             <span class="divider">/</span>
         </li>
-        <li class="active">{% trans "Product Attribute" %}</li>
+        <li class="active">{% trans "Product Attributes" %}</li>
     </ul>
 {% endblock %}
 
 {% block header %}
     <div class="page-header">
-        <a href="{% url 'dashboard:catalogue-class-create' %}" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new product attribute" %}</a>
+        <a href="{% url 'dashboard:product-attribute-create' %}" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new product attribute" %}</a>
         <h1>{% trans "Product attributes" %}</h1>
     </div>
 {% endblock header %}
@@ -33,7 +33,7 @@
             <tbody>
                 {% for attribute in attributes %}
                     <tr>
-                        <td><a href="">{{ attribute.name }}</a></td>
+                        <td><a href="{% url 'dashboard:product-attribute-update' pk=attribute.id %}">{{ attribute.name }}</a></td>
                         <td>{{ attribute.code }}</td>
                         <td><a href="{% url 'dashboard:catalogue-class-update' pk=attribute.product_class.id %}">{{ attribute.product_class.name }}</a></td>
                         <td>
@@ -44,7 +44,7 @@
                                         <span class="caret"></span>
                                     </a>
                                     <ul class="nav dropdown-menu pull-right">
-                                        <li><a href="">{% trans "Edit product attribute" %}</a></li>                                    
+                                        <li><a href="{% url 'dashboard:product-attribute-update' pk=attribute.id %}">{% trans "Edit product attribute" %}</a></li>
                                         <li><a href="">{% trans "Delete" %}</a></li>
                                     </ul>
                                 </div>

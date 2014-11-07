@@ -52,6 +52,10 @@ class CatalogueApplication(Application):
 
     product_attribute_list_view = get_class('dashboard.catalogue.views',
                                             'ProductAttributeListView')
+    product_attribute_create_view = get_class('dashboard.catalogue.views',
+                                              'ProductAttributeCreateView')
+    product_attribute_update_view = get_class('dashboard.catalogue.views',
+                                              'ProductAttributeUpdateView')
 
     stock_alert_view = get_class('dashboard.catalogue.views',
                                  'StockAlertListView')
@@ -109,7 +113,13 @@ class CatalogueApplication(Application):
                 name='catalogue-class-delete'),
             url(r'^attributes/$',
                 self.product_attribute_list_view.as_view(),
-                name='product-attribute-list')
+                name='product-attribute-list'),
+            url(r'^attribute/create/$',
+                self.product_attribute_create_view.as_view(),
+                name='product-attribute-create'),
+            url(r'^attribute/(?P<pk>\d+)/update/$',
+                self.product_attribute_update_view.as_view(),
+                name='product-attribute-update')
         ]
         return self.post_process_urls(urls)
 
