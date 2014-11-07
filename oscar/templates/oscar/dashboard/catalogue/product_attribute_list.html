@@ -36,7 +36,13 @@
                     <tr>
                         <td><a href="{% url 'dashboard:product-attribute-update' pk=attribute.id %}">{{ attribute.name }}</a></td>
                         <td>{{ attribute.code }}</td>
-                        <td><a href="{% url 'dashboard:catalogue-class-update' pk=attribute.product_class.id %}">{{ attribute.product_class.name }}</a></td>
+                        <td>
+                            {% if attribute.product_class %}
+                            <a href="{% url 'dashboard:catalogue-class-update' pk=attribute.product_class.id %}">{{ attribute.product_class.name }}</a>
+                            {% else %}
+                            None
+                            {% endif %}
+                        </td>
                         <td>
                             <div class="btn-toolbar">
                                 <div class="btn-group">
