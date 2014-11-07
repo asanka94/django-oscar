@@ -3,6 +3,7 @@ from django.core import exceptions
 from django.forms.models import inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 from treebeard.forms import MoveNodeForm, movenodeform_factory
+from extra_views import InlineFormSet
 
 from oscar.core.utils import slugify
 from oscar.core.loading import get_class, get_model
@@ -16,6 +17,7 @@ StockRecord = get_model('partner', 'StockRecord')
 ProductCategory = get_model('catalogue', 'ProductCategory')
 ProductImage = get_model('catalogue', 'ProductImage')
 ProductRecommendation = get_model('catalogue', 'ProductRecommendation')
+AttributeOption = get_model('catalogue', 'AttributeOption')
 ProductSelect = get_class('dashboard.catalogue.widgets', 'ProductSelect')
 ProductSelectMultiple = get_class('dashboard.catalogue.widgets',
                                   'ProductSelectMultiple')
@@ -496,3 +498,8 @@ ProductAttributesFormSet = inlineformset_factory(ProductClass,
                                                  ProductAttribute,
                                                  form=ProductAttributesForm,
                                                  extra=3)
+
+
+class AttributeOptionInlineFormSet(InlineFormSet):
+    model = AttributeOption
+    extra = 5

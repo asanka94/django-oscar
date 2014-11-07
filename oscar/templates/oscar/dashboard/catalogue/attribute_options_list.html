@@ -21,7 +21,7 @@
 
 {% block header %}
     <div class="page-header">
-        <a href="" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new attribute option group" %}</a>
+        <a href="{% url 'dashboard:attribute-option-group-create' %}" class="btn btn-primary btn-large pull-right"><i class="icon-plus"></i> {% trans "Create new attribute option group" %}</a>
         <h1>{% trans "Attribute option groups" %}</h1>
     </div>
 {% endblock header %}
@@ -40,7 +40,7 @@
         <tbody>
             {% for option_group in attribute_option_groups %}
                 <tr>
-                    <td><a href="">{{ option_group.name }}</a></td>
+                    <td><a href="{% url 'dashboard:attribute-option-group-update' pk=option_group.pk %}">{{ option_group.name }}</a></td>
                     <td>{{ option_group.option_summary }}</td>
                     <td>
                         <div class="btn-toolbar">

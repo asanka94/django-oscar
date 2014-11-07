@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from oscar.core.loading import get_classes, get_model
 
 from django_tables2 import SingleTableMixin
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, NamedFormsetsMixin
 
 from oscar.views.generic import ObjectLookupView
 
@@ -24,7 +25,8 @@ from oscar.views.generic import ObjectLookupView
  ProductImageFormSet,
  ProductRecommendationFormSet,
  ProductAttributesFormSet,
- ProductAttributesForm) \
+ ProductAttributesForm,
+ AttributeOptionInlineFormSet) \
     = get_classes('dashboard.catalogue.forms',
                   ('ProductForm',
                    'ProductClassSelectForm',
@@ -37,7 +39,8 @@ from oscar.views.generic import ObjectLookupView
                    'ProductImageFormSet',
                    'ProductRecommendationFormSet',
                    'ProductAttributesFormSet',
-                   'ProductAttributesForm'))
+                   'ProductAttributesForm',
+                   'AttributeOptionInlineFormSet'))
 ProductTable, CategoryTable \
     = get_classes('dashboard.catalogue.tables',
                   ('ProductTable', 'CategoryTable'))
@@ -778,7 +781,39 @@ class ProductAttributeUpdateView(generic.UpdateView):
         return reverse("dashboard:product-attribute-list")
 
 
-class AttributeOptionListView(generic.ListView):
+class AttributeOptionGroupListView(generic.ListView):
     model = AttributeOptionGroup
     template_name = 'dashboard/catalogue/attribute_options_list.html'
     context_object_name = 'attribute_option_groups'
+
+
+class AttributeOptionGroupCreateView(NamedFormsetsMixin, CreateWithInlinesView):
+    model = AttributeOptionGroup
+    template_name = 'dashboard/catalogue/attribute_options_form.html'
+    inlines = [AttributeOptionInlineFormSet]
+    inlines_names = ['attribute_option_formset']
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AttributeOptionGroupCreateView, self).get_context_data(**kwargs)
+        ctx["title"] = _("Create new attribute option group")
+        return ctx
+
+    def get_success_url(self):
+        messages.info(self.request, _("Attribute option group created successfully"))
+        return reverse("dashboard:attribute-option-group-list")
+
+
+class AttributeOptionGroupUpdateView(NamedFormsetsMixin, UpdateWithInlinesView):
+    model = AttributeOptionGroup
+    template_name = 'dashboard/catalogue/attribute_options_form.html'
+    inlines = [AttributeOptionInlineFormSet]
+    inlines_names = ['attribute_option_formset']
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AttributeOptionGroupUpdateView, self).get_context_data(**kwargs)
+        ctx["title"] = _("Update attribute option group '%s'" % self.object.name)
+        return ctx
+
+    def get_success_url(self):
+        messages.info(self.request, _("Attribute option group updated successfully"))
+        return reverse("dashboard:attribute-option-group-list")

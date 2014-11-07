@@ -58,7 +58,11 @@ class CatalogueApplication(Application):
                                               'ProductAttributeUpdateView')
 
     attribute_option_group_list_view = get_class('dashboard.catalogue.views',
-                                                 'AttributeOptionListView')
+                                                 'AttributeOptionGroupListView')
+    attribute_option_group_create_view = get_class('dashboard.catalogue.views',
+                                                   'AttributeOptionGroupCreateView')
+    attribute_option_group_update_view = get_class('dashboard.catalogue.views',
+                                                   'AttributeOptionGroupUpdateView')
 
     stock_alert_view = get_class('dashboard.catalogue.views',
                                  'StockAlertListView')
@@ -125,7 +129,13 @@ class CatalogueApplication(Application):
                 name='product-attribute-update'),
             url(r'^attribute/options/$',
                 self.attribute_option_group_list_view.as_view(),
-                name='attribute-option-group-list')
+                name='attribute-option-group-list'),
+            url(r'^attribute/options/create/$',
+                self.attribute_option_group_create_view.as_view(),
+                name='attribute-option-group-create'),
+            url(r'^attribute/options/(?P<pk>\d+)/update/$',
+                self.attribute_option_group_update_view.as_view(),
+                name='attribute-option-group-update')
         ]
         return self.post_process_urls(urls)
 
