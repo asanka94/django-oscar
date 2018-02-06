@@ -244,7 +244,31 @@ OSCAR_SEARCH_FACETS = {
 
 
 OSCAR_PROMOTIONS_ENABLED = True
-OSCAR_PRODUCT_SEARCH_HANDLER = None
+OSCAR_PRODUCT_SEARCH_HANDLER = 'oscar.apps.catalogue.search_handlers.ProductSearchHandler'
+OSCAR_SHOW_PRICE_RANGE_FACET = False
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    }
+}
+ELASTICSEARCH_ANALYZERS = [
+    'oscar.apps.search.analyzers.ngram_analyzer',
+    'oscar.apps.search.analyzers.edgengram_analyzer'
+]
+ELASTICSEARCH_INDEX_CONFIG = {
+    "index.requests.cache.enable": True,
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+}
+ELASTICSEARCH_DSL_AUTOSYNC = False
+ELASTICSEARCH_SEARCH_CONFIG = {
+    'product': {
+        'query_type': 'multi_match',
+        'fields': ['all_skus', 'upc', 'title^2', 'description'],
+        'minimum_should_match': '70%'
+    }
+}
 
 OSCAR_SETTINGS = dict(
     [(k, v) for k, v in locals().items() if k.startswith('OSCAR_')])
