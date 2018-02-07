@@ -42,7 +42,7 @@ class ProductDocumentMeta(DocTypeMeta):
     def __new__(cls, name, bases, attrs):
         attrs['product_attributes'] = []
 
-        indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'ELASTICSEARCH_FACETS', {}).keys())
+        indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'OSCAR_SEARCH_FACETS', {}).keys())
         for attr in indexed_attributes:
             # don't add it if a custom field is already defined
             if attr.code not in attrs:

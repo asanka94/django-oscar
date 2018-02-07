@@ -62,7 +62,7 @@ class BaseFacet(object):
 
         facet_name = self.facet_name if self.facet_name else self.field_name.capitalize()
         # TODO this is rather hacky - is there a better way to get this label?
-        user_defined_facets = getattr(settings, 'ELASTICSEARCH_FACETS', {})
+        user_defined_facets = getattr(settings, 'OSCAR_SEARCH_FACETS', {})
 
         if self.field_name in user_defined_facets:
             facet_name = user_defined_facets[self.field_name]['label']
@@ -118,7 +118,7 @@ FACET_CLASSES = {
 
 def get_facet_class(field):
     try:
-        user_defined_facets = getattr(settings, 'ELASTICSEARCH_FACETS', {})
+        user_defined_facets = getattr(settings, 'OSCAR_SEARCH_FACETS', {})
         facet_type = user_defined_facets.get(field, {})['type']
         return FACET_CLASSES[facet_type]
     except KeyError:
