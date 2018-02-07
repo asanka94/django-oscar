@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import ProgrammingError
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -42,13 +43,18 @@ class ProductDocumentMeta(DocTypeMeta):
     def __new__(cls, name, bases, attrs):
         attrs['product_attributes'] = []
 
-        indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'OSCAR_SEARCH_FACETS', {}).keys())
-        for attr in indexed_attributes:
-            # don't add it if a custom field is already defined
-            if attr.code not in attrs:
-                attrs[attr.code] = ATTRIBUTE_TYPE_ES_FIELDS[attr.type](index='not_analyzed', include_in_all=False)
+        try:
+            indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'OSCAR_SEARCH_FACETS', {}).keys())
+            for attr in indexed_attributes:
+                # don't add it if a custom field is already defined
+                if attr.code not in attrs:
+                    attrs[attr.code] = ATTRIBUTE_TYPE_ES_FIELDS[attr.type](index='not_analyzed', include_in_all=False)
 
-            attrs['product_attributes'].append(attr.code)
+                attrs['product_attributes'].append(attr.code)
+
+        # without this we can't run migrations on a new database
+        except ProgrammingError:
+            pass
 
         attr_copy = attrs.copy()
         cls = super(ProductDocumentMeta, cls).__new__(cls, name, bases, attrs)
