@@ -83,8 +83,7 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
         'sku': fields.KeywordField(copy_to='all_skus'),
         'price': fields.FloatField(),
         'partner': fields.IntegerField(index='not_analyzed'),
-        'num_in_stock': fields.IntegerField(index='not_analyzed'),
-        'on_sale': fields.BooleanField(index='not_analyzed')
+        'num_in_stock': fields.IntegerField(index='not_analyzed')
     }, include_in_all=False))
     categories = fields.ListField(field=fields.IntegerField(
         include_in_all=False
@@ -136,9 +135,6 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
 
     def prepare_description(self, product):
         return self.sanitize_description(product.description)
-
-    def prepare_long_description(self, product):
-        return self.sanitize_description(product.long_description)
 
     def prepare_stock(self, product):
         if product.is_parent or not product.has_stockrecords:
