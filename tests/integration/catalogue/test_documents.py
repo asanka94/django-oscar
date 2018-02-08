@@ -314,3 +314,16 @@ class ProductDocumentTestCase(TestCase):
         with patch.object(doc.__class__, 'sanitize_description') as sanitize_mock:
             doc.prepare_description(product)
             sanitize_mock.assert_called_with(description)
+
+    def test_stockrecords_added_from_child_products(self):
+        parent = create_product(product_class=ProductFactory(), structure=Product.PARENT)
+        child = create_product(parent=parent)
+
+        child_stock = create_stockrecord(child, partner_name="P1", price_excl_tax=1000)
+
+        doc = ProductDocument()
+
+        self.assertEqual(
+            doc.prepare_stock(parent),
+            [doc.get_stockrecord_data(child_stock)]
+        )

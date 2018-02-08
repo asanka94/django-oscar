@@ -19,6 +19,7 @@ from elasticsearch_dsl import Mapping, MetaField
 Line = get_model('order', 'Line')
 Product = get_model('catalogue', 'Product')
 ProductAttribute = get_model('catalogue', 'ProductAttribute')
+StockRecord = get_model('partner', 'StockRecord')
 
 product_mapping = Mapping('product')
 product_mapping.field('raw_title', 'text', boost=1.25)
@@ -132,12 +133,18 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
         return self.sanitize_description(product.description)
 
     def prepare_stock(self, product):
-        if product.is_parent or not product.has_stockrecords:
+        if product.is_standalone and not product.has_stockrecords:
             # For parent products... we don't currently handle this case
             return None
 
         stocks = []
-        for stockrecord in product.stockrecords.all():
+
+        if product.is_parent:
+            stockrecords = StockRecord.objects.filter(product__in=product.children.all())
+        else:
+            stockrecords = product.stockrecords.all()
+
+        for stockrecord in stockrecords:
             stocks.append(self.get_stockrecord_data(stockrecord))
 
         return stocks
