@@ -45,23 +45,22 @@ class ProductDocumentMeta(DocTypeMeta):
 
         try:
             indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'OSCAR_SEARCH_FACETS', {}).keys())
+
+            attribute_fields = {}
             for attr in indexed_attributes:
                 # don't add it if a custom field is already defined
                 if attr.code not in attrs:
-                    attrs[attr.code] = ATTRIBUTE_TYPE_ES_FIELDS[attr.type](index='not_analyzed', include_in_all=False)
+                    attribute_fields[attr.code] = ATTRIBUTE_TYPE_ES_FIELDS[attr.type](index='not_analyzed', include_in_all=False)
 
                 attrs['product_attributes'].append(attr.code)
+
+            attrs['variants'] = fields.ListField(field=fields.NestedField(properties=attribute_fields))
 
         # without this we can't run migrations on a new database
         except ProgrammingError:
             pass
 
-        attr_copy = attrs.copy()
-        cls = super(ProductDocumentMeta, cls).__new__(cls, name, bases, attrs)
-        for attr in attrs['product_attributes']:
-            setattr(cls, attr, attr_copy[attr])
-
-        return cls
+        return super(ProductDocumentMeta, cls).__new__(cls, name, bases, attrs)
 
 
 class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
@@ -94,18 +93,11 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
         attr="get_absolute_url"
     )
 
-    def __getattr__(self, name):
-        # return a function that will be used to fetch product attribute values from the product
+    def get_queryset(self):
+        qs = super(ProductDocument, self).get_queryset()
+        return qs.exclude(structure=Product.CHILD)
 
-        # e.g prepare_price will fetch product.attr.price if price is in self.product_attributes
-        if name.startswith('prepare_'):
-            attribute_name = name.split('prepare_', 1)[1]
-            if attribute_name in self.product_attributes:
-                return lambda product: self.prepare_attribute(product, attribute_name)
-
-        return super(ProductDocument, self).__getattr__(name)
-
-    def prepare_attribute(self, product, attribute_name):
+    def get_attribute_data(self, product, attribute_name):
         attr = getattr(product.attr, attribute_name, None)
         if isinstance(attr, QuerySet):
             # Multi option, get the list of values directly from database.
@@ -115,19 +107,22 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
         else:
             return attr
 
-    def prepare(self, instance):
-        data = super(ProductDocument, self).prepare(instance)
+    def get_product_attributes(self, product):
+        data = {}
+        for attr in product.attr:
+            data[attr.attribute.code] = self.get_attribute_data(product, attr.attribute.code)
 
-        # remove attribute data for attributes that don't exist for this product
-        final_data = data.copy()
-        for key in data:
-            if key in self.product_attributes:
-                try:
-                    getattr(instance.attr, key)
-                except AttributeError:
-                    del final_data[key]
+        return data
 
-        return final_data
+    def prepare_variants(self, product):
+        variant_data = []
+        if product.is_parent:
+            for child in product.children.all():
+                variant_data.append(self.get_product_attributes(child))
+        else:
+            variant_data.append(self.get_product_attributes(product))
+
+        return variant_data
 
     @staticmethod
     def sanitize_description(description):

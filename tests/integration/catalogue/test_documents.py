@@ -7,12 +7,11 @@ from django.utils import timezone
 from django.test import TestCase, override_settings
 
 from django_elasticsearch_dsl import fields as dsl_fields
-from oscar.core.loading import get_model
+from oscar.apps.catalogue.models import Product, ProductAttribute
+
 from oscar.test import factories
 from oscar.test.factories import (create_product, create_stockrecord, create_basket,
-                                  create_order)
-
-ProductAttribute = get_model('catalogue', 'ProductAttribute')
+                                  create_order, ProductClassFactory)
 
 
 def ProductDocument(*args, **kwargs):
@@ -41,6 +40,20 @@ class ProductDocumentTestCase(TestCase):
 
         doc = ProductDocument()
         self.assertEqual(doc.get_stockrecord_data(stockrecord), expected)
+
+    def test_only_parent_and_standalone_products_are_indexed(self):
+        product_class = ProductClassFactory()
+
+        standalone = create_product(product_class=product_class)
+        parent = create_product(product_class=product_class, structure=Product.PARENT)
+        child = parent.children.add(create_product())
+
+        pd = ProductDocument()
+        queryset = pd.get_queryset()
+
+        self.assertIn(standalone, queryset)
+        self.assertIn(parent, queryset)
+        self.assertNotIn(child, queryset)
 
     def test_get_stockrecord_data_returns_none_if_stockrecord_has_no_price_excl_tax(self):
         no_price = create_stockrecord()
@@ -132,23 +145,11 @@ class ProductDocumentTestCase(TestCase):
 
         doc = ProductDocument()
 
-        self.assertTrue(isinstance(doc.included_attribute, dsl_fields.KeywordField))
-        self.assertTrue(callable(doc.prepare_included_attribute))
+        variants = doc._doc_type._fields()['variants']
 
-        self.assertFalse(hasattr(doc, 'not_included_attribute'))
+        self.assertTrue(isinstance(variants.properties['included_attribute'], dsl_fields.KeywordField))
 
-    @override_settings(OSCAR_SEARCH_FACETS={'test_attribute': {}})
-    def test_es_dsl_prepare_attr_function_created_for_product_attributes(self):
-        product_class = factories.ProductClassFactory()
-
-        product_class.attributes.add(ProductAttribute.objects.create(
-            name='Test attribute', code='test_attribute',
-            type=ProductAttribute.TEXT
-        ))
-
-        product = create_product(attributes={'test_attribute': 'very good attribute'})
-
-        self.assertEqual(ProductDocument().prepare_test_attribute(product), 'very good attribute')
+        self.assertFalse(hasattr(variants.properties, 'not_included_attribute'))
 
     @override_settings(OSCAR_SEARCH_FACETS={'attribute_one': {}, 'attribute_two': {}})
     def test_prepared_data_contains_attribute_data(self):
@@ -172,8 +173,8 @@ class ProductDocumentTestCase(TestCase):
         doc = ProductDocument()
 
         prepared_data = doc.prepare(product)
-        self.assertEqual(prepared_data['attribute_one'], 'Hello world')
-        self.assertEqual(prepared_data['attribute_two'], 16.1)
+        self.assertEqual(prepared_data['variants'][0]['attribute_one'], 'Hello world')
+        self.assertEqual(prepared_data['variants'][0]['attribute_two'], 16.1)
 
     @override_settings(OSCAR_SEARCH_FACETS={
         'text': {},
@@ -236,18 +237,21 @@ class ProductDocumentTestCase(TestCase):
 
         doc = ProductDocument()
 
-        self.assertTrue(isinstance(doc.text, dsl_fields.KeywordField))
-        self.assertTrue(isinstance(doc.integer, dsl_fields.IntegerField))
-        self.assertTrue(isinstance(doc.boolean, dsl_fields.BooleanField))
-        self.assertTrue(isinstance(doc.float, dsl_fields.FloatField))
-        self.assertTrue(isinstance(doc.richtext, dsl_fields.KeywordField))
-        self.assertTrue(isinstance(doc.date, dsl_fields.DateField))
-        self.assertTrue(isinstance(doc.datetime, dsl_fields.DateField))
-        self.assertTrue(isinstance(doc.option, dsl_fields.KeywordField))
-        self.assertTrue(isinstance(doc.multi_option, dsl_fields.KeywordField))
+        def get_variant(field_name):
+            return doc.__class__._doc_type._fields()['variants'].properties[field_name]
+
+        self.assertTrue(isinstance(get_variant('text'), dsl_fields.KeywordField))
+        self.assertTrue(isinstance(get_variant('integer'), dsl_fields.IntegerField))
+        self.assertTrue(isinstance(get_variant('boolean'), dsl_fields.BooleanField))
+        self.assertTrue(isinstance(get_variant('float'), dsl_fields.FloatField))
+        self.assertTrue(isinstance(get_variant('richtext'), dsl_fields.KeywordField))
+        self.assertTrue(isinstance(get_variant('date'), dsl_fields.DateField))
+        self.assertTrue(isinstance(get_variant('datetime'), dsl_fields.DateField))
+        self.assertTrue(isinstance(get_variant('option'), dsl_fields.KeywordField))
+        self.assertTrue(isinstance(get_variant('multi_option'), dsl_fields.KeywordField))
 
     @override_settings(OSCAR_SEARCH_FACETS={'sizes': {}})
-    def test_prepare_attribute_returns_proper_value_for_multi_options(self):
+    def test_get_attribute_data_returns_proper_value_for_multi_options(self):
         option_group = factories.AttributeOptionGroupFactory()
         multi_option = factories.ProductAttributeFactory(
             type='multi_option',
@@ -265,12 +269,12 @@ class ProductDocumentTestCase(TestCase):
 
         doc = ProductDocument()
         self.assertEqual(
-            sorted(doc.prepare_sizes(product)),
+            sorted(doc.get_attribute_data(product, 'sizes')),
             sorted([options[0].option, options[1].option])
         )
 
     @override_settings(OSCAR_SEARCH_FACETS={'option': {}})
-    def test_prepare_attribute_returns_proper_value_for_option(self):
+    def test_get_attribute_data_returns_proper_value_for_option(self):
         option_group = factories.AttributeOptionGroupFactory()
         option = factories.ProductAttributeFactory(
             type='option',
@@ -286,7 +290,7 @@ class ProductDocumentTestCase(TestCase):
 
         doc = ProductDocument()
         self.assertEqual(
-            doc.prepare_option(product),
+            doc.get_attribute_data(product, 'option'),
             options[1].option
         )
 
