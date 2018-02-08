@@ -11,7 +11,7 @@ from oscar.apps.catalogue.models import Product, ProductAttribute
 
 from oscar.test import factories
 from oscar.test.factories import (create_product, create_stockrecord, create_basket,
-                                  create_order, ProductClassFactory)
+                                  create_order, ProductFactory)
 
 
 def ProductDocument(*args, **kwargs):
@@ -43,8 +43,8 @@ class ProductDocumentTestCase(TestCase):
 
     def test_only_parent_and_standalone_products_are_indexed(self):
         standalone = create_product(structure=Product.STANDALONE)
-        parent = create_product(structure=Product.PARENT)
-        child = parent.children.add(create_product())
+        parent = create_product(product_class=ProductFactory(), structure=Product.PARENT)
+        child = create_product(parent=parent)
 
         pd = ProductDocument()
         queryset = pd.get_queryset()
