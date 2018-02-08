@@ -42,10 +42,8 @@ class ProductDocumentTestCase(TestCase):
         self.assertEqual(doc.get_stockrecord_data(stockrecord), expected)
 
     def test_only_parent_and_standalone_products_are_indexed(self):
-        product_class = ProductClassFactory()
-
-        standalone = create_product(product_class=product_class)
-        parent = create_product(product_class=product_class, structure=Product.PARENT)
+        standalone = create_product(structure=Product.STANDALONE)
+        parent = create_product(structure=Product.PARENT)
         child = parent.children.add(create_product())
 
         pd = ProductDocument()
