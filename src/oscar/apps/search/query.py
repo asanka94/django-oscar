@@ -2,8 +2,6 @@ from django.conf import settings
 import elasticsearch_dsl as dsl
 from oscar.core.loading import get_model
 
-from . import client
-
 
 Product = get_model('catalogue', 'Product')
 
@@ -69,7 +67,7 @@ class BaseSearch(object):
     document = None
 
     def search_instance(self):
-        return self.document.search(using=client.es_client, index=self.index)
+        return self.document.search(index=self.index)
 
     @staticmethod
     def obj_list_from_results(results):
