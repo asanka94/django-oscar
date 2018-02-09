@@ -63,7 +63,7 @@ def agg_to_filter(agg, value):
 
 class BaseSearch(object):
 
-    index = getattr(settings, 'ELASTICSEARCH_INDEX_NAME', 'oscar')
+    index = settings.OSCAR_SEARCH.get('INDEX_NAME', 'oscar')
     document = None
 
     def search_instance(self):
@@ -80,7 +80,7 @@ class BaseSearch(object):
         return [loaded_objects[pk] for pk in product_pks if pk in loaded_objects]
 
     def add_multi_match(self, search, query_string):
-        query_dict = settings.ELASTICSEARCH_SEARCH_CONFIG[self.document._doc_type.name].copy()
+        query_dict = settings.OSCAR_SEARCH['SEARCH_CONFIG'][self.document._doc_type.name].copy()
         query_dict['query'] = query_string
         return search.query(
             query_dict.pop('query_type'),

@@ -92,7 +92,7 @@ def build_category_tree(category, agg, request_url, use_cat_url=False):
         ancestors = []
         children = Category.objects.filter(depth=1)
 
-    num_levels = getattr(settings, 'ELASTICSEARCH_CATEGORY_TREE_DEPTH', 1)
+    num_levels = settings.OSCAR_SEARCH.get('CATEGORY_TREE_DEPTH', 1)
 
     def build_data_list(cats, current_level=1):
         data = []

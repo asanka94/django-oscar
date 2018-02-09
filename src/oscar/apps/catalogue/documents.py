@@ -45,7 +45,7 @@ class ProductDocumentMeta(DocTypeMeta):
         attrs['product_attributes'] = []
 
         try:
-            indexed_attributes = ProductAttribute.objects.filter(code__in=getattr(settings, 'OSCAR_SEARCH_FACETS', {}).keys())
+            indexed_attributes = ProductAttribute.objects.filter(code__in=settings.OSCAR_SEARCH.get('FACETS', {}).keys())
 
             attribute_fields = {}
             for attr in indexed_attributes:
@@ -187,7 +187,7 @@ class ProductDocument(with_metaclass(ProductDocumentMeta, DocType)):
 
     class Meta:
         doc_type = 'product'
-        index = settings.ELASTICSEARCH_INDEX_NAME
+        index = settings.OSCAR_SEARCH['INDEX_NAME']
         model = Product
         mapping = product_mapping
         dynamic = MetaField('strict')

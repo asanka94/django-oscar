@@ -18,7 +18,7 @@ class Command(BaseCommand):
             analyzer_registry = AnalyzerRegistry()
             analyzer_registry.define_in_index(index)
 
-            index.settings(**settings.ELASTICSEARCH_INDEX_CONFIG)
+            index.settings(**settings.OSCAR_SEARCH['INDEX_CONFIG'])
             index.create()
 
         for Document in registry.get_documents():

@@ -46,7 +46,7 @@ class ProductSearch(BaseProductSearch):
 
     def get_facets(self):
         facets = {}
-        for name, data in getattr(settings, 'ELASTICSEARCH_FACETS', {}).items():
+        for name, data in settings.OSCAR_SEARCH.get('FACETS', {}).items():
             facets[name] = dsl.A(data['type'], **data['params'])
         return facets
 
@@ -115,7 +115,7 @@ class ProductSearch(BaseProductSearch):
         if price_count < 10:
             return
 
-        n_groups = getattr(settings, 'ELASTICSEARCH_PRICE_FACET_COUNT', 5)
+        n_groups = getattr(settings, 'OSCAR_PRICE_FACET_COUNT', 5)
         group_size = int(math.ceil(price_count/n_groups))
         chunks = utils.chunks(prices, group_size)
         ranges = []
@@ -230,7 +230,7 @@ class ProductSearch(BaseProductSearch):
         """
         Executes a search and parses the response.
         """
-        if not 'price' in self.filters and settings.OSCAR_SHOW_PRICE_RANGE_FACET:
+        if not 'price' in self.filters and settings.OSCAR_SEARCH['SHOW_PRICE_RANGE_FACET']:
             self.sniff_price_range()
         s = self.build_search()
         return self.parse_response(s.execute())
@@ -248,7 +248,7 @@ class RelatedProductSearch(BaseProductSearch):
         } for p in self.products]
 
     def get_related_products(self, num=5, category_id=None):
-        compare_fields = getattr(settings, 'ELASTICSEARCH_RELATED_PRODUCT_FIELDS',
+        compare_fields = getattr(settings, 'OSCAR_RELATED_PRODUCT_FIELDS',
             ['title', 'description'])
 
         if not hasattr(self, '_results'):

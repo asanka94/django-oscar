@@ -382,7 +382,14 @@ OSCAR_USE_LESS = False
 # Search
 # ======
 
-ELASTICSEARCH_INDEX_NAME = 'sandbox'
+OSCAR_SEARCH['INDEX_NAME'] = 'sandbox'
+OSCAR_SEARCH['FACETS'] = {
+    'size': {
+        'type': 'terms',
+        'label': 'Size',
+        'params': {'field': 'variants.size'}
+    }
+}
 
 
 # Sentry
