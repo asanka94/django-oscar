@@ -238,6 +238,7 @@ class ProductDocumentTestCase(TestCase):
         def get_variant(field_name):
             return doc.__class__._doc_type._fields()['variants'].properties[field_name]
 
+        self.assertTrue(isinstance(doc.__class__._doc_type._fields()['variants'], dsl_fields.ObjectField))
         self.assertTrue(isinstance(get_variant('text'), dsl_fields.KeywordField))
         self.assertTrue(isinstance(get_variant('integer'), dsl_fields.IntegerField))
         self.assertTrue(isinstance(get_variant('boolean'), dsl_fields.BooleanField))

@@ -55,7 +55,7 @@ class ProductDocumentMeta(DocTypeMeta):
 
                 attrs['product_attributes'].append(attr.code)
 
-            attrs['variants'] = fields.ListField(field=fields.NestedField(properties=attribute_fields))
+            attrs['variants'] = fields.ListField(field=fields.ObjectField(properties=attribute_fields))
 
         # without this we can't run migrations on a new database
         except ProgrammingError:
