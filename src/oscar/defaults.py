@@ -250,6 +250,29 @@ OSCAR_SEARCH_FACETS = {
     ]),
 }
 
+# Search settings
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    }
+}
+ELASTICSEARCH_DSL_AUTOSYNC = True
+
+OSCAR_SEARCH = {
+    "ANALYZERS": [
+        "oscar.apps.es_search.analyzers.ngram_analyzer",
+        "oscar.apps.es_search.analyzers.edgengram_analyzer"
+    ],
+    "INDEX_CONFIG": {
+        "index.requests.cache.enable": True,
+        "number_of_shards": 1,
+        "number_of_replicas": 0
+    },
+    "INDEX_NAME": "oscar",
+    "INDEXED_FIELDS": {},
+    'SEARCHES': {}
+}
+
 
 OSCAR_PROMOTIONS_ENABLED = True
 OSCAR_PRODUCT_SEARCH_HANDLER = None
